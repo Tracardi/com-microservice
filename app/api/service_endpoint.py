@@ -1,10 +1,11 @@
-from typing import Optional, Union
+from typing import Union
 
 from fastapi import APIRouter
 from fastapi.encoders import jsonable_encoder
 from pydantic import ValidationError
 from starlette.responses import JSONResponse
 
+from tracardi.service.plugin.domain.console import Console
 from tracardi.service.plugin.domain.register import Plugin
 
 from tracardi.service.plugin.service import plugin_context
@@ -73,17 +74,22 @@ async def validate_plugin_configuration(service_id: str, action_id: str, config:
 async def run_plugin(service_id: str, action_id: str, data: PluginExecContext):
     try:
         plugin_type = repo.get_plugin(service_id, action_id)
-        print(data.init)
         if plugin_type:
             plugin = plugin_type()
+            plugin.console = Console(plugin_type, __name__)
             # set context
             data.context['node']['className'] = plugin_type.__name__
             data.context['node']['module'] = __name__
+
             plugin_context.set_context(plugin, data.context, include=['node'])
-            print("context", data.context['node'])
-            print("init", data.init)
+
             await plugin.set_up(data.init)
-            print(await plugin.run(**data.params))
+            result = await plugin.run(**data.params)
+            return {
+                "result": result,
+                "context": plugin_context.get_context(plugin, include=['node']),
+                "console": plugin.console.dict()
+            }
         return {}
     except ValidationError as e:
         return JSONResponse(

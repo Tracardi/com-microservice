@@ -29,26 +29,29 @@ class TrelloCardAdder(TrelloPlugin):
         self.set_up_trello(self.node)
 
     async def run(self, payload: dict, in_edge=None) -> Result:
-        self.console.error("test")
-        self._client.set_retries(self.node.on_connection_error_repeat)
-        dot = self._get_dot_accessor(payload)
-        coords = dot[self.config.card.coordinates]
-        coords = f"{coords['latitude']}," \
-                 f"{coords['longitude']}" if isinstance(coords, dict) else coords
-
-        traverser = DictTraverser(dot)
-        card = Card(**traverser.reshape(self.config.card.dict()))
-
-        template = DotTemplate()
-        card.desc = template.render(self.config.card.desc, dot)
-        card.due = str(dot[self.config.card.due]) if self.config.card.due is not None else None
-        card.coordinates = coords
-
         try:
+            self.console.warning("test")
+            self._client.set_retries(self.node.on_connection_error_repeat)
+            dot = self._get_dot_accessor(payload)
+            coords = dot[self.config.card.coordinates]
+            coords = f"{coords['latitude']}," \
+                     f"{coords['longitude']}" if isinstance(coords, dict) else coords
+
+            traverser = DictTraverser(dot)
+            card = Card(**traverser.reshape(self.config.card.dict()))
+
+            template = DotTemplate()
+            card.desc = template.render(self.config.card.desc, dot)
+            card.due = str(dot[self.config.card.due]) if self.config.card.due is not None else None
+            card.coordinates = coords
+
             result = await self._client.add_card(self.config.list_id, **card.dict())
+
+            self.event.properties['ass'] = 1
+
         except (ConnectionError, ValueError) as e:
             self.console.error(str(e))
-            return Result(port="error", value=payload)
+            return Result(port="error", value={"message": str(e)})
 
         return Result(port="response", value=result)
 
