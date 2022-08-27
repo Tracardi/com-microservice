@@ -69,7 +69,7 @@ repo = ServicesRepo(
             plugins={
                 "a04381af-c008-4328-ab61-0e73825903ce": PluginConfig(
                     name="Add card",
-                    validator=trello.add_card.config.Config,
+                    validator=trello.add_card.plugin.validate,
                     plugin=trello.add_card.plugin.TrelloCardAdder,
                     registry=trello.add_card.plugin.register()
                 )

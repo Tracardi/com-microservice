@@ -58,10 +58,10 @@ async def get_plugin_registry(service_id: str):
 
 
 @router.post("/plugin/validate", tags=["microservice"], response_model=dict)
-async def validate_plugin_configuration(service_id: str, action_id: str, data: dict):
+async def validate_plugin_configuration(service_id: str, action_id: str, config: dict, credentials: dict = None):
     try:
         validator = repo.get_plugin_validator(service_id, action_id)
-        return validator(**data)
+        return await validator(config, credentials)
     except ValidationError as e:
         return JSONResponse(
             status_code=422,

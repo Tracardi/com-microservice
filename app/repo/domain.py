@@ -1,4 +1,4 @@
-from typing import Type, Dict, Tuple, Optional
+from typing import Type, Dict, Tuple, Optional, Callable
 from pydantic import BaseModel
 from tracardi.service.plugin.domain.register import Form, Plugin
 from tracardi.service.plugin.runner import ActionRunner
@@ -12,7 +12,7 @@ class PluginExecContext(BaseModel):
 
 class PluginConfig(BaseModel):
     name: str
-    validator: Type[BaseModel]
+    validator: Callable
     plugin: Type[ActionRunner]
     registry: Plugin
 

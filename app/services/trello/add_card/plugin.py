@@ -1,7 +1,8 @@
+from typing import Optional
+
 from tracardi.service.plugin.domain.register import Plugin, Spec, MetaData, Documentation, PortDoc, Form, FormGroup, \
     FormField, FormComponent
 from tracardi.service.plugin.domain.result import Result
-from tracardi.service.storage.driver import storage
 from tracardi.process_engine.action.v1.connectors.trello.trello_client import TrelloClient
 from tracardi.service.notation.dict_traverser import DictTraverser
 from tracardi.service.notation.dot_template import DotTemplate
@@ -11,11 +12,9 @@ from app.services.trello.credentials import TrelloCredentials
 from app.services.trello.trello_plugin import TrelloPlugin
 
 
-async def validate(config: dict) -> Config:
+async def validate(config: dict, credentials: Optional[dict]) -> Config:
+    credentials = TrelloCredentials(**credentials)
     plugin_config = Config(**config)
-    credentials = TrelloCredentials(
-        **(await storage.driver.resource.load(plugin_config.source.id)).credentials.production
-    )
     client = TrelloClient(credentials.api_key, credentials.token)
     list_id = await client.get_list_id(plugin_config.board_url, plugin_config.list_name)
     plugin_config = Config(**plugin_config.dict(exclude={"list_id"}), list_id=list_id)
@@ -26,11 +25,11 @@ class TrelloCardAdder(TrelloPlugin):
     config: Config
 
     async def set_up(self, init):
-        # print("pl creds", self.node.microservice.plugin.resource)
         self.config = Config(**init)
-        await self.set_up_trello(self.config)
+        self.set_up_trello(self.node)
 
     async def run(self, payload: dict, in_edge=None) -> Result:
+        self.console.error("test")
         self._client.set_retries(self.node.on_connection_error_repeat)
         dot = self._get_dot_accessor(payload)
         coords = dot[self.config.card.coordinates]
@@ -62,15 +61,11 @@ def register() -> Plugin:
             className='TrelloCardAdder',
             inputs=["payload"],
             outputs=["response", "error"],
-            version='0.6.1',
+            version='0.7.2',
             license="MIT",
-            author="Dawid Kruk",
+            author="Dawid Kruk, Risto Kowaczewski",
             manual="trello/add_trello_card_action",
             init={
-                "source": {
-                    "name": None,
-                    "id": None
-                },
                 "board_url": "",
                 "list_name": "",
                 "card": {
@@ -87,13 +82,6 @@ def register() -> Plugin:
                     FormGroup(
                         name="Plugin configuration",
                         fields=[
-                            FormField(
-                                id="source",
-                                name="Trello resource",
-                                description="Please select your Trello resource.",
-                                component=FormComponent(type="resource",
-                                                        props={"label": "Resource", "tag": "trello"})
-                            ),
                             FormField(
                                 id="board_url",
                                 name="URL of Trello board",
