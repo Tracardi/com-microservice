@@ -1,10 +1,11 @@
 from typing import Union
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
 from pydantic import ValidationError
 from starlette.responses import JSONResponse
 
+from app.api.auth.auth_bearer import JWTBearer
 from tracardi.service.plugin.domain.console import Console
 from tracardi.service.plugin.domain.register import Plugin
 
@@ -17,7 +18,7 @@ from app.utils.converter import convert_errors
 router = APIRouter()
 
 
-@router.get("/services", tags=["microservice"], response_model=dict)
+@router.get("/services", dependencies=[Depends(JWTBearer())], tags=["microservice"], response_model=dict)
 async def get_all_services():
     services = list(repo.get_all_services())
     return {
@@ -26,7 +27,7 @@ async def get_all_services():
     }
 
 
-@router.get("/actions", tags=["microservice"], response_model=dict)
+@router.get("/actions", dependencies=[Depends(JWTBearer())], tags=["microservice"], response_model=dict)
 async def get_actions(service_id: str):
     actions = list(repo.get_all_action_plugins(service_id))
     return {
@@ -35,7 +36,7 @@ async def get_actions(service_id: str):
     }
 
 
-@router.get("/plugin/form", tags=["microservice"], response_model=dict)
+@router.get("/plugin/form", dependencies=[Depends(JWTBearer())], tags=["microservice"], response_model=dict)
 async def get_plugin(service_id: str, action_id: str):
     init, form = repo.get_plugin_form_an_init(service_id, action_id)
 
@@ -45,7 +46,8 @@ async def get_plugin(service_id: str, action_id: str):
     }
 
 
-@router.get("/service/resource", tags=["microservice"], response_model=Union[dict, None])
+@router.get("/service/resource", dependencies=[Depends(JWTBearer())], tags=["microservice"],
+            response_model=Union[dict, None])
 async def get_plugin_registry(service_id: str):
     service = repo.get_service(service_id)
     if service is not None:
@@ -53,12 +55,13 @@ async def get_plugin_registry(service_id: str):
     return None
 
 
-@router.get("/plugin/registry", tags=["microservice"], response_model=Union[Plugin, None])
+@router.get("/plugin/registry", dependencies=[Depends(JWTBearer())], tags=["microservice"],
+            response_model=Union[Plugin, None])
 async def get_plugin_registry(service_id: str):
     return repo.get_plugin_registry(service_id)
 
 
-@router.post("/plugin/validate", tags=["microservice"], response_model=dict)
+@router.post("/plugin/validate", dependencies=[Depends(JWTBearer())], tags=["microservice"], response_model=dict)
 async def validate_plugin_configuration(service_id: str, action_id: str, config: dict, credentials: dict = None):
     try:
         validator = repo.get_plugin_validator(service_id, action_id)
@@ -70,7 +73,7 @@ async def validate_plugin_configuration(service_id: str, action_id: str, config:
         )
 
 
-@router.post("/plugin/run", tags=["microservice"], response_model=dict)
+@router.post("/plugin/run", dependencies=[Depends(JWTBearer())], tags=["microservice"], response_model=dict)
 async def run_plugin(service_id: str, action_id: str, data: PluginExecContext):
     try:
         plugin_type = repo.get_plugin(service_id, action_id)

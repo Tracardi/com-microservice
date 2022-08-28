@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from time import time
 
@@ -5,7 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Request
 from starlette.responses import JSONResponse
 
-from app.api import service_endpoint
+from app import config
+from app.api import service_endpoint, auth_endpoint
 
 from tracardi.config import tracardi
 
@@ -14,6 +16,9 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 print(f"TRACARDI version {str(tracardi.version)}")
+if len(config.microservice.api_key) < 32:
+    raise EnvironmentError("API_KEY must be at least 32 chars long")
+
 
 application = FastAPI(
     title="Tracardi Trello Microservice",
@@ -35,11 +40,13 @@ application.add_middleware(
 )
 
 application.include_router(service_endpoint.router)
+application.include_router(auth_endpoint.router)
 
 
 @application.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     try:
+        await asyncio.sleep(1)
 
         start_time = time()
         response = await call_next(request)
@@ -51,6 +58,7 @@ async def add_process_time_header(request: Request, call_next):
     except Exception as e:
         logger.error("Endpoint exception", exc_info=True)
         return JSONResponse(status_code=500, content={"details": str(e)})
+
 
 
 if __name__ == "__main__":
