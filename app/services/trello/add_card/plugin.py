@@ -83,7 +83,7 @@ def register() -> Plugin:
             form=Form(
                 groups=[
                     FormGroup(
-                        name="Plugin configuration",
+                        name="Trello Add Card Configuration",
                         fields=[
                             FormField(
                                 id="board_url",
