@@ -47,8 +47,6 @@ class TrelloCardAdder(TrelloPlugin):
 
             result = await self._client.add_card(self.config.list_id, **card.dict())
 
-            self.event.properties['ass'] = 1
-
         except (ConnectionError, ValueError) as e:
             self.console.error(str(e))
             return Result(port="error", value={"message": str(e)})
@@ -156,7 +154,6 @@ def register() -> Plugin:
                     "response": PortDoc(desc="This port returns a response from Trello API."),
                     "error": PortDoc(desc="This port gets triggered if an error occurs.")
                 }
-            ),
-            pro=True
+            )
         )
     )

@@ -5,7 +5,6 @@ from tracardi.service.plugin.domain.register import FormField, FormGroup, Form, 
 from app.repo.domain import ServiceConfig, ServiceResource, ServicesRepo, PluginConfig
 from app.services import trello
 
-
 repo = ServicesRepo(
     repo={
         "a307b281-2629-4c12-b6e3-df1ec9bca35a": ServiceConfig(
@@ -48,7 +47,7 @@ repo = ServicesRepo(
                     outputs=["response", "error"],
                     version='0.7.2',
                     license="MIT",
-                    author="Risto Kowaczewski",
+                    author="Risto Kowaczewski"
                 ),
                 metadata=MetaData(
                     name='Trello Microservice',
@@ -72,6 +71,18 @@ repo = ServicesRepo(
                     validator=trello.add_card.plugin.validate,
                     plugin=trello.add_card.plugin.TrelloCardAdder,
                     registry=trello.add_card.plugin.register()
+                ),
+                "9062083f-6bb5-4208-ae31-c2562161ab9b": PluginConfig(
+                    name="Move card",
+                    validator=trello.move_card.plugin.validate,
+                    plugin=trello.move_card.plugin.TrelloCardMover,
+                    registry=trello.move_card.plugin.register()
+                ),
+                "b5a5ad32-95a8-4a50-bd36-d29f3e98c523": PluginConfig(
+                    name="Delete card",
+                    validator=trello.delete_card.plugin.validate,
+                    plugin=trello.delete_card.plugin.TrelloCardRemover,
+                    registry=trello.delete_card.plugin.register()
                 )
             }
         )

@@ -1,6 +1,4 @@
 from tracardi.service.plugin.runner import ActionRunner
-from tracardi.service.storage.driver import storage
-
 from app.services.trello.credentials import TrelloCredentials
 from app.services.trello.trello_client import TrelloClient
 from tracardi.service.wf.domain.node import Node
