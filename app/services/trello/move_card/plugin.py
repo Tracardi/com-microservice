@@ -34,7 +34,7 @@ class TrelloCardMover(TrelloPlugin):
             result = await self._client.move_card(self.config.list_id1, self.config.list_id2, card_name)
         except (ConnectionError, ValueError) as e:
             self.console.error(str(e))
-            return Result(port="error", value={})
+            return Result(port="error", value={"message": str(e)})
 
         return Result(port="response", value=result)
 

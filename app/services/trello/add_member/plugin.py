@@ -34,7 +34,7 @@ class TrelloMemberAdder(TrelloPlugin):
             result = await self._client.add_member(self.config.list_id, card_name, member_id)
         except (ConnectionError, ValueError) as e:
             self.console.error(str(e))
-            return Result(port="error", value=payload)
+            return Result(port="error", value={"message": str(e)})
 
         return Result(port="response", value=result)
 

@@ -31,10 +31,7 @@ repo = ServicesRepo(
                             )
                         ]
                     )]),
-                init=TrelloCredentials(
-                    api_key="",
-                    token=""
-                ),
+                init=TrelloCredentials.create(),
                 validator=TrelloCredentials
             ),
             microservice=Plugin(
