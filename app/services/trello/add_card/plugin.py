@@ -142,7 +142,7 @@ def register() -> Plugin:
         ),
         # todo this may be not need
         metadata=MetaData(
-            name='Add Trello card',
+            name='Add Trello Card',
             desc='Adds card to given list on given board in Trello.',
             icon='trello',
             group=["Trello"],

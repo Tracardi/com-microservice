@@ -3,9 +3,9 @@ from typing import Optional
 from tracardi.service.plugin.domain.register import Plugin, Spec, MetaData, Documentation, PortDoc, Form, FormGroup, \
     FormField, FormComponent
 from tracardi.service.plugin.domain.result import Result
-from tracardi.process_engine.action.v1.connectors.trello.trello_client import TrelloClient
 from .config import Config
 from ..credentials import TrelloCredentials
+from tracardi.process_engine.action.v1.connectors.trello.trello_client import TrelloClient
 from ..trello_plugin import TrelloPlugin
 
 
@@ -13,13 +13,12 @@ async def validate(config: dict, credentials: Optional[dict]) -> Config:
     credentials = TrelloCredentials(**credentials)
     plugin_config = Config(**config)
     client = TrelloClient(credentials.api_key, credentials.token)
-    list_id1 = await client.get_list_id(plugin_config.board_url, plugin_config.list_name1)
-    list_id2 = await client.get_list_id(plugin_config.board_url, plugin_config.list_name2)
-    plugin_config = Config(**plugin_config.dict(exclude={"list_id1", "list_id2"}), list_id1=list_id1, list_id2=list_id2)
+    list_id = await client.get_list_id(plugin_config.board_url, plugin_config.list_name)
+    plugin_config = Config(**plugin_config.dict(exclude={"list_id"}), list_id=list_id)
     return plugin_config
 
 
-class TrelloCardMover(TrelloPlugin):
+class TrelloMemberAdder(TrelloPlugin):
     config: Config
 
     async def set_up(self, init):
@@ -28,13 +27,14 @@ class TrelloCardMover(TrelloPlugin):
 
     async def run(self, payload: dict, in_edge=None) -> Result:
         dot = self._get_dot_accessor(payload)
+        member_id = dot[self.config.member_id]
         card_name = dot[self.config.card_name]
 
         try:
-            result = await self._client.move_card(self.config.list_id1, self.config.list_id2, card_name)
+            result = await self._client.add_member(self.config.list_id, card_name, member_id)
         except (ConnectionError, ValueError) as e:
             self.console.error(str(e))
-            return Result(port="error", value={})
+            return Result(port="error", value=payload)
 
         return Result(port="response", value=result)
 
@@ -43,24 +43,24 @@ def register() -> Plugin:
     return Plugin(
         start=False,
         spec=Spec(
-            module='plugins.trello.move_card.plugin',
-            className='TrelloCardMover',
+            module='plugins.trello.add_member.plugin',
+            className='TrelloMemberAdder',
             inputs=["payload"],
             outputs=["response", "error"],
             version='0.7.2',
             license="MIT",
             author="Dawid Kruk, Risto Kowaczewski",
-            manual="trello/move_trello_card_action",
+            manual="trello/add_trello_member_action",
             init={
                 "board_url": None,
-                "list_name1": None,
-                "list_name2": None,
-                "card_name": None
+                "card_name": None,
+                "list_name": None,
+                "member_id": None
             },
             form=Form(
                 groups=[
                     FormGroup(
-                        name="Trello Move Card Configuration",
+                        name="Trello Add Member Configuration",
                         fields=[
                             FormField(
                                 id="board_url",
@@ -69,24 +69,26 @@ def register() -> Plugin:
                                 component=FormComponent(type="text", props={"label": "Board URL"})
                             ),
                             FormField(
-                                id="list_name1",
-                                name="Name of current Trello list",
-                                description="Please provide the name of your Trello list that card is currently on.",
-                                component=FormComponent(type="text", props={"label": "List name"})
-                            ),
-                            FormField(
-                                id="list_name2",
-                                name="Name of target Trello list",
-                                description="Please provide the name of your Trello list that you want to move your "
-                                            "card to.",
+                                id="list_name",
+                                name="Name of Trello list",
+                                description="Please provide the name of your Trello list.",
                                 component=FormComponent(type="text", props={"label": "List name"})
                             ),
                             FormField(
                                 id="card_name",
                                 name="Name of your card",
-                                description="Please provide path to the name of the card that you want to move.",
+                                description="Please provide path to the name of the card that you want to add member "
+                                            "to.",
                                 component=FormComponent(type="dotPath",
                                                         props={"label": "Card name", "defaultMode": "2"})
+                            ),
+                            FormField(
+                                id="member_id",
+                                name="ID of the member",
+                                description="Please provide the path to the field containing ID of the member that you "
+                                            "want to add.",
+                                component=FormComponent(type="dotPath",
+                                                        props={"label": "ID of the member", "defaultMode": "2"})
                             )
                         ]
                     )
@@ -94,8 +96,8 @@ def register() -> Plugin:
             )
         ),
         metadata=MetaData(
-            name='Move Trello Card',
-            desc='Moves card from given list on given board to another list on that board in Trello.',
+            name='Add Trello Member',
+            desc='Adds a member to given card on given list in Trello.',
             icon='trello',
             group=["Trello"],
             documentation=Documentation(

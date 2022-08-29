@@ -86,7 +86,7 @@ def register() -> Plugin:
 
         ),
         metadata=MetaData(
-            name='Delete Trello card',
+            name='Delete Trello Card',
             desc='Deletes card from given list on given board in Trello.',
             icon='trello',
             group=["Trello"],

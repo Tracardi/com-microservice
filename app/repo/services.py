@@ -37,7 +37,6 @@ repo = ServicesRepo(
                 ),
                 validator=TrelloCredentials
             ),
-
             microservice=Plugin(
                 start=False,
                 spec=Spec(
@@ -83,7 +82,13 @@ repo = ServicesRepo(
                     validator=trello.delete_card.plugin.validate,
                     plugin=trello.delete_card.plugin.TrelloCardRemover,
                     registry=trello.delete_card.plugin.register()
-                )
+                ),
+                "0c52a414-8fc6-40ff-b3c7-27183285c753": PluginConfig(
+                    name="Add Member",
+                    validator=trello.add_member.plugin.validate,
+                    plugin=trello.add_member.plugin.TrelloMemberAdder,
+                    registry=trello.add_member.plugin.register()
+                ),
             }
         )
     })
