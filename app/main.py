@@ -19,7 +19,6 @@ print(f"TRACARDI version {str(tracardi.version)}")
 if len(config.microservice.api_key) < 32:
     raise EnvironmentError("API_KEY must be at least 32 chars long")
 
-
 application = FastAPI(
     title="Tracardi Trello Microservice",
     version=str(tracardi.version),
@@ -46,7 +45,6 @@ application.include_router(auth_endpoint.router)
 @application.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     try:
-        await asyncio.sleep(1)
 
         start_time = time()
         response = await call_next(request)
@@ -58,7 +56,6 @@ async def add_process_time_header(request: Request, call_next):
     except Exception as e:
         logger.error("Endpoint exception", exc_info=True)
         return JSONResponse(status_code=500, content={"details": str(e)})
-
 
 
 if __name__ == "__main__":
