@@ -1,4 +1,4 @@
-from tracardi.process_engine.action.v1.connectors.trello.credentials import TrelloCredentials
+from app.services.trello.credentials import TrelloCredentials
 from tracardi.service.plugin.domain.register import FormField, FormGroup, Form, FormComponent, Plugin, Spec, MetaData, \
     Documentation, PortDoc
 

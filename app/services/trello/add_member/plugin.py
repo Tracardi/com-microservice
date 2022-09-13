@@ -5,7 +5,7 @@ from tracardi.service.plugin.domain.register import Plugin, Spec, MetaData, Docu
 from tracardi.service.plugin.domain.result import Result
 from .config import Config
 from ..credentials import TrelloCredentials
-from tracardi.process_engine.action.v1.connectors.trello.trello_client import TrelloClient
+from ..trello_client import TrelloClient
 from ..trello_plugin import TrelloPlugin
 
 

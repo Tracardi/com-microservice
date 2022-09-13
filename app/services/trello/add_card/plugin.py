@@ -1,9 +1,9 @@
 from typing import Optional
 
+from app.services.trello.trello_client import TrelloClient
 from tracardi.service.plugin.domain.register import Plugin, Spec, MetaData, Documentation, PortDoc, Form, FormGroup, \
     FormField, FormComponent
 from tracardi.service.plugin.domain.result import Result
-from tracardi.process_engine.action.v1.connectors.trello.trello_client import TrelloClient
 from tracardi.service.notation.dict_traverser import DictTraverser
 from tracardi.service.notation.dot_template import DotTemplate
 

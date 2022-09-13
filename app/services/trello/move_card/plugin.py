@@ -3,9 +3,9 @@ from typing import Optional
 from tracardi.service.plugin.domain.register import Plugin, Spec, MetaData, Documentation, PortDoc, Form, FormGroup, \
     FormField, FormComponent
 from tracardi.service.plugin.domain.result import Result
-from tracardi.process_engine.action.v1.connectors.trello.trello_client import TrelloClient
 from .config import Config
 from ..credentials import TrelloCredentials
+from ..trello_client import TrelloClient
 from ..trello_plugin import TrelloPlugin
 
 
