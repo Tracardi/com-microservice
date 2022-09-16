@@ -10,6 +10,19 @@ from tracardi.service.notation.dot_template import DotTemplate
 from app.services.trello.add_card.config import Config, Card
 from app.services.trello.credentials import TrelloCredentials
 from app.services.trello.trello_plugin import TrelloPlugin
+from tracardi.service.plugin.plugin_endpoint import PluginEndpoint
+
+
+class Endpoint(PluginEndpoint):
+    @staticmethod
+    async def test(config: dict):
+        print(config)
+        return {"result": [
+            {"name": "name1", "id": 1},
+            {"name": "name2", "id": 2}
+        ],
+            "total": 1
+        }
 
 
 async def validate(config: dict, credentials: Optional[dict]) -> Config:
@@ -83,6 +96,22 @@ def register() -> Plugin:
                     FormGroup(
                         name="Trello Add Card Configuration",
                         fields=[
+                            FormField(
+                                id="template",
+                                name="Novu template name",
+                                description="Type the template name defined in Novu. This template will be used to send"
+                                            " a message.",
+                                component=FormComponent(type="autocomplete", props={
+                                    "label": "Template name",
+                                    "endpoint": {
+                                        "baseURL": '$microservice.server.credentials.production.url',
+                                        "url": Endpoint.url(__name__, "test"),
+                                        "method": "post"
+                                    },
+                                    'token': '$microservice.server.credentials.production.token',
+
+                                })
+                            ),
                             FormField(
                                 id="board_url",
                                 name="URL of Trello board",

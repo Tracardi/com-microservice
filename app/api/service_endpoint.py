@@ -1,11 +1,13 @@
+from json import JSONDecodeError
 from typing import Union
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request, HTTPException
 from fastapi.encoders import jsonable_encoder
 from pydantic import ValidationError
 from starlette.responses import JSONResponse
 
 from app.api.auth.auth_bearer import JWTBearer
+from tracardi.service.module_loader import import_package, load_callable, is_coroutine
 from tracardi.service.plugin.domain.console import Console
 from tracardi.service.plugin.domain.register import Plugin
 
@@ -16,6 +18,39 @@ from app.repo.services import repo
 from app.utils.converter import convert_errors
 
 router = APIRouter()
+
+
+@router.post("/plugin/{module}/{endpoint_function}", dependencies=[Depends(JWTBearer())], tags=["microservice"],
+             response_model=dict)
+async def get_data_for_plugin(module: str, endpoint_function: str, request: Request):
+    """
+    Calls helper method from Endpoint class in plugin's module
+    """
+
+    try:
+        if not module.startswith('app.services'):
+            raise HTTPException(status_code=404, detail="This is not helper endpoint.")
+
+        module = import_package(module)
+        endpoint_module = load_callable(module, 'Endpoint')
+        function_to_call = getattr(endpoint_module, endpoint_function)
+
+        try:
+            body = await request.json()
+        except JSONDecodeError:
+            body = {}
+
+        if is_coroutine(function_to_call):
+            return await function_to_call(body)
+        return function_to_call(body)
+
+    except ValidationError as e:
+        return JSONResponse(
+            status_code=422,
+            content=jsonable_encoder(convert_errors(e))
+        )
+    except AttributeError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.get("/services", dependencies=[Depends(JWTBearer())], tags=["microservice"], response_model=dict)

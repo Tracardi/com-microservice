@@ -70,7 +70,7 @@ class ServicesRepo(BaseModel):
                 return plugin_config.registry.spec.init, plugin_config.registry.spec.form
         return None, None
 
-    def get_plugin_validator(self, service_id: str, plugin_id: str) -> Type[BaseModel]:
+    def get_plugin_validator(self, service_id: str, plugin_id: str) -> Callable:
         if service_id in self.repo:
             service = self.repo[service_id]
             if plugin_id in service.plugins:

@@ -55,7 +55,12 @@ async def add_process_time_header(request: Request, call_next):
 
     except Exception as e:
         logger.error("Endpoint exception", exc_info=True)
-        return JSONResponse(status_code=500, content={"details": str(e)})
+        return JSONResponse(status_code=500,
+                            headers={
+                                "access-control-allow-credentials": "true",
+                                "access-control-allow-origin": "*"
+                            },
+                            content={"details": str(e)})
 
 
 if __name__ == "__main__":
