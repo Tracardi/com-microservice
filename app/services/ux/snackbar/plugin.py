@@ -1,7 +1,8 @@
 from typing import Optional
 
-from pydantic import validator, AnyHttpUrl
+from pydantic import validator
 
+from app.services.ux.micro_front_end_location import MicroFrontEndLocation
 from tracardi.service.plugin.domain.register import Plugin, Spec, MetaData, Documentation, PortDoc, Form, FormGroup, \
     FormField, FormComponent
 from tracardi.service.plugin.runner import ActionRunner
@@ -16,7 +17,6 @@ class Configuration(PluginConfig):
     hide_after: str
     position_x: str
     position_y: str
-    uix_mf_source: AnyHttpUrl = "http://localhost:8686"
 
     @validator("message")
     def should_no_be_empty(cls, value):
@@ -36,10 +36,12 @@ async def validate(config: dict, credentials: Optional[dict]) -> Configuration:
 
 
 class SnackBarUx(ActionRunner):
+    resource: MicroFrontEndLocation
     config: Configuration
 
     async def set_up(self, init):
         self.config = Configuration(**init)
+        self.resource = MicroFrontEndLocation(**self.node.microservice.plugin.resource)
 
     async def run(self, payload: dict, in_edge=None) -> Result:
         dot = self._get_dot_accessor(payload)
@@ -58,7 +60,7 @@ class SnackBarUx(ActionRunner):
                 "data-auto-hide": self.config.hide_after
             }
         })
-        self.ux.append({"tag": "script", "props": {"src": f"{self.config.uix_mf_source}/uix/snackbar/index.js"}})
+        self.ux.append({"tag": "script", "props": {"src": f"{self.resource.uix_mf_source}/uix/snackbar/index.js"}})
 
         return Result(port="response", value=payload)
 
@@ -76,8 +78,7 @@ def register() -> Plugin:
                 "message": "",
                 "hide_after": 6000,
                 "position_x": "center",
-                "position_y": "bottom",
-                "uix_mf_source": "http://localhost:8686"
+                "position_y": "bottom"
             },
             version='0.7.2',
             license="MIT",
@@ -128,19 +129,7 @@ def register() -> Plugin:
                                 "right": "Right"
                             }})
                         ),
-                    ]),
-                    FormGroup(
-                        name="Widget Source Location",
-                        fields=[
-                            FormField(
-                                id="uix_mf_source",
-                                name="Micro frontend source location",
-                                description="Provide URL where the micro frontend source is located. Usually it is the "
-                                            "location of Tracardi API. Type different location if you use CDN.",
-                                component=FormComponent(type="text", props={"label": "URL"})
-                            ),
-                        ],
-                    ),
+                    ])
                 ]),
 
         ),

@@ -1,10 +1,11 @@
-import asyncio
 import logging
+import os
 from time import time
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Request
 from starlette.responses import JSONResponse
+from starlette.staticfiles import StaticFiles
 
 from app import config
 from app.api import service_endpoint, auth_endpoint
@@ -15,12 +16,14 @@ logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+_local_dir = os.path.dirname(__file__)
+
 print(f"TRACARDI version {str(tracardi.version)}")
 if len(config.microservice.api_key) < 32:
     raise EnvironmentError("API_KEY must be at least 32 chars long")
 
 application = FastAPI(
-    title="Tracardi Trello Microservice",
+    title="Tracardi Microservices",
     version=str(tracardi.version),
     contact={
         "name": "Risto Kowaczewski",
@@ -29,6 +32,12 @@ application = FastAPI(
     },
 
 )
+
+application.mount("/uix",
+                  StaticFiles(
+                      html=True,
+                      directory=os.path.join(_local_dir, "uix")),
+                  name="uix")
 
 application.add_middleware(
     CORSMiddleware,
