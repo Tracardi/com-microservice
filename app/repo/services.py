@@ -96,14 +96,13 @@ repo = ServicesRepo(
                 form=Form(groups=[
                     FormGroup(
                         name="UIX resource configuration",
-                        description="This service needs to download micro-front-end code.",
                         fields=[
                             FormField(
                                 id="uix_mf_source",
                                 name="Micro-front-end source location",
                                 description="This service needs to download micro-front-end code. Please provide the "
-                                    "location of the micro-front-end javascript code. Usually it is the "
-                                    "micro-service URL or the CDN that the code was uploaded to.",
+                                            "location of the micro-front-end javascript code. Usually it is the "
+                                            "micro-service URL or the CDN that the code was uploaded to.",
                                 component=FormComponent(type="text",
                                                         props={"label": "URL"})
                             )
