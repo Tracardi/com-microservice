@@ -3,7 +3,7 @@ from typing import Union
 
 from fastapi import APIRouter, Depends, Request, HTTPException
 from fastapi.encoders import jsonable_encoder
-from pydantic import ValidationError
+from pydantic import ValidationError, BaseModel
 from starlette.responses import JSONResponse
 
 from app.api.auth.auth_bearer import JWTBearer
@@ -13,7 +13,7 @@ from tracardi.service.plugin.domain.register import Plugin
 
 from tracardi.service.plugin.service import plugin_context
 
-from app.repo.domain import PluginExecContext
+from app.repo.domain import PluginExecContext, ServiceResource
 from app.repo.services import repo
 from app.utils.converter import convert_errors
 
@@ -72,7 +72,7 @@ async def get_actions(service_id: str):
 
 
 @router.get("/plugin/form", dependencies=[Depends(JWTBearer())], tags=["microservice"], response_model=dict)
-async def get_plugin(service_id: str, action_id: str):
+async def get_plugin_form(service_id: str, action_id: str):
     init, form = repo.get_plugin_form_an_init(service_id, action_id)
 
     return {
@@ -83,16 +83,58 @@ async def get_plugin(service_id: str, action_id: str):
 
 @router.get("/service/resource", dependencies=[Depends(JWTBearer())], tags=["microservice"],
             response_model=Union[dict, None])
-async def get_plugin_registry(service_id: str):
+async def get_service_resource(service_id: str):
+
+    """
+    Returns service resource definition.
+    :param service_id: str
+    :return: Union[dict, None]
+    """
+
     service = repo.get_service(service_id)
-    if service is not None:
+    if service is not None and isinstance(service.resource, BaseModel):
         return service.resource.dict(exclude={"validator": ...})
     return None
+
+
+@router.post("/service/resource/validate", dependencies=[Depends(JWTBearer())], tags=["microservice"])
+async def validate_resource(service_id: str, resource: dict):
+    """
+    Returns service resource definition.
+    :param resource: dict
+    :param service_id: str
+    :return: Union[dict, None]
+    """
+
+    if service_id == '':
+        raise ValueError("Empty param service_id")
+
+    service = repo.get_service(service_id)
+    if service is None or not isinstance(service.resource, ServiceResource):
+        raise RuntimeError('Service resource validator not defined.')
+
+    try:
+        service.resource.validator(**resource)
+    except ValidationError as e:
+        return JSONResponse(
+            status_code=422,
+            content=jsonable_encoder(convert_errors(e))
+        )
+
+    return True
 
 
 @router.get("/plugin/registry", dependencies=[Depends(JWTBearer())], tags=["microservice"],
             response_model=Union[Plugin, None])
 async def get_plugin_registry(service_id: str):
+
+    """
+    Returns plugin specification
+
+    :param service_id:
+    :return: Union[Plugin, None]
+    """
+
     return repo.get_plugin_registry(service_id)
 
 
@@ -110,6 +152,15 @@ async def validate_plugin_configuration(service_id: str, action_id: str, config:
 
 @router.post("/plugin/run", dependencies=[Depends(JWTBearer())], tags=["microservice"], response_model=dict)
 async def run_plugin(service_id: str, action_id: str, data: PluginExecContext):
+
+    """
+    Runs the plugin.
+    :param service_id:
+    :param action_id:
+    :param data:
+    :return:
+    """
+
     try:
         plugin_type = repo.get_plugin(service_id, action_id)
         if plugin_type:

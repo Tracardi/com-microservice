@@ -1,9 +1,10 @@
 from app.services.trello.credentials import TrelloCredentials
+from app.services.ux.micro_front_end_location import MicroFrontEndLocation
 from tracardi.service.plugin.domain.register import FormField, FormGroup, Form, FormComponent, Plugin, Spec, MetaData, \
     Documentation, PortDoc
 
 from app.repo.domain import ServiceConfig, ServiceResource, ServicesRepo, PluginConfig
-from app.services import trello
+from app.services import trello, ux
 
 repo = ServicesRepo(
     repo={
@@ -49,6 +50,7 @@ repo = ServicesRepo(
                     name='Trello Microservice',
                     desc='Microservice that runs Trello plugins.',
                     icon='trello',
+                    tags=['microservice', 'remote'],
                     group=["Connectors"],
                     remote=True,
                     documentation=Documentation(
@@ -86,6 +88,68 @@ repo = ServicesRepo(
                     plugin=trello.add_member.plugin.TrelloMemberAdder,
                     registry=trello.add_member.plugin.register()
                 ),
+            }
+        ),
+        "597da587-f25a-49ba-9f95-f3424dd3b159": ServiceConfig(
+            name="UIX Widgets",
+            resource=ServiceResource(
+                form=Form(groups=[
+                    FormGroup(
+                        name="UIX resource configuration",
+                        description="This service needs to download micro-front-end code.",
+                        fields=[
+                            FormField(
+                                id="uix_mf_source",
+                                name="Micro-front-end source location",
+                                description="This service needs to download micro-front-end code. Please provide the "
+                                    "location of the micro-front-end javascript code. Usually it is the "
+                                    "micro-service URL or the CDN that the code was uploaded to.",
+                                component=FormComponent(type="text",
+                                                        props={"label": "URL"})
+                            )
+                        ]
+                    )]),
+                init=MicroFrontEndLocation.create(),
+                validator=MicroFrontEndLocation
+            ),
+            microservice=Plugin(
+                start=False,
+                spec=Spec(
+                    module='tracardi.process_engine.action.v1.microservice.plugin',
+                    className='MicroserviceAction',
+                    inputs=["payload"],
+                    outputs=["response", "error"],
+                    version='0.7.2',
+                    license="MIT",
+                    author="Risto Kowaczewski"
+                ),
+                metadata=MetaData(
+                    name='UIX Widgets Microservice',
+                    desc='Microservice that runs Trello plugins.',
+                    icon='react',
+                    group=["UIX Widgets"],
+                    tags=['microservice', 'remote', 'uix'],
+                    remote=True,
+                    documentation=Documentation(
+                        inputs={
+                            "payload": PortDoc(desc="This port takes payload object.")
+                        },
+                        outputs={
+                            "response": PortDoc(desc="This port returns microservice response."),
+                            "error": PortDoc(desc="This port returns microservice error.")
+                        }
+                    )
+                ),
+
+            ),
+
+            plugins={
+                "3d0828b8-9e17-4ae8-ab0c-d82fd3638b3d": PluginConfig(
+                    name="Show snack bar",
+                    validator=ux.snackbar.plugin.validate,
+                    plugin=ux.snackbar.plugin.SnackBarUx,
+                    registry=ux.snackbar.plugin.register()
+                )
             }
         )
     })
