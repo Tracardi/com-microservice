@@ -1,34 +1,11 @@
 from typing import Optional
-
-from pydantic import validator
-
 from app.services.ux.micro_front_end_location import MicroFrontEndLocation
+from app.services.ux.snackbar.configuration import Configuration
 from tracardi.service.plugin.domain.register import Plugin, Spec, MetaData, Documentation, PortDoc, Form, FormGroup, \
     FormField, FormComponent
 from tracardi.service.plugin.runner import ActionRunner
 from tracardi.service.plugin.domain.result import Result
 from tracardi.service.notation.dot_template import DotTemplate
-from tracardi.service.plugin.domain.config import PluginConfig
-
-
-class Configuration(PluginConfig):
-    type: str = "success"
-    message: str
-    hide_after: str
-    position_x: str
-    position_y: str
-
-    @validator("message")
-    def should_no_be_empty(cls, value):
-        if len(value) == 0:
-            raise ValueError("Message should not be empty")
-        return value
-
-    @validator("hide_after")
-    def hide_after_should_be_numeric(cls, value: str):
-        if not value.isnumeric():
-            raise ValueError("This value should be numeric")
-        return value
 
 
 async def validate(config: dict, credentials: Optional[dict]) -> Configuration:
@@ -84,52 +61,53 @@ def register() -> Plugin:
             license="MIT",
             author="Risto Kowaczewski",
             form=Form(
-                groups=[FormGroup(
-                    name="Widget Message Configuration",
-                    fields=[
-                        FormField(
-                            id="message",
-                            name="Pop-up message",
-                            description="Provide message that will be shown on the web page.",
-                            component=FormComponent(type="textarea", props={"label": "message"})
-                        ),
-                        FormField(
-                            id="type",
-                            name="Alert type",
-                            description="Select alert type.",
-                            component=FormComponent(type="select", props={"label": "Alert type", "items": {
-                                "error": "Error",
-                                "warning": "Warning",
-                                "success": "Success",
-                                "info": "Info"
-                            }})
-                        ),
-                        FormField(
-                            id="hide_after",
-                            name="Hide message after",
-                            description="Type number of milliseconds the message must be visible. Default: 6000. 6sec.",
-                            component=FormComponent(type="text", props={"label": "hide after"})
-                        ),
-                        FormField(
-                            id="position_y",
-                            name="Vertical position",
-                            description="Select where would you like to place the message.",
-                            component=FormComponent(type="select", props={"label": "Vertical position", "items": {
-                                "bottom": "Bottom",
-                                "top": "Top"
-                            }})
-                        ),
-                        FormField(
-                            id="position_x",
-                            name="Horizontal position",
-                            description="Select where would you like to place the message.",
-                            component=FormComponent(type="select", props={"label": "Horizontal position", "items": {
-                                "left": "Left",
-                                "center": "Center",
-                                "right": "Right"
-                            }})
-                        ),
-                    ])
+                groups=[
+                    FormGroup(
+                        name="Widget Message Configuration",
+                        fields=[
+                            FormField(
+                                id="message",
+                                name="Pop-up message",
+                                description="Provide message that will be shown on the web page.",
+                                component=FormComponent(type="textarea", props={"label": "message"})
+                            ),
+                            FormField(
+                                id="type",
+                                name="Alert type",
+                                description="Select alert type.",
+                                component=FormComponent(type="select", props={"label": "Alert type", "items": {
+                                    "error": "Error",
+                                    "warning": "Warning",
+                                    "success": "Success",
+                                    "info": "Info"
+                                }})
+                            ),
+                            FormField(
+                                id="hide_after",
+                                name="Hide message after",
+                                description="Type number of milliseconds the message must be visible. Default: 6000. 6sec.",
+                                component=FormComponent(type="text", props={"label": "hide after"})
+                            ),
+                            FormField(
+                                id="position_y",
+                                name="Vertical position",
+                                description="Select where would you like to place the message.",
+                                component=FormComponent(type="select", props={"label": "Vertical position", "items": {
+                                    "bottom": "Bottom",
+                                    "top": "Top"
+                                }})
+                            ),
+                            FormField(
+                                id="position_x",
+                                name="Horizontal position",
+                                description="Select where would you like to place the message.",
+                                component=FormComponent(type="select", props={"label": "Horizontal position", "items": {
+                                    "left": "Left",
+                                    "center": "Center",
+                                    "right": "Right"
+                                }})
+                            ),
+                        ])
                 ]),
 
         ),

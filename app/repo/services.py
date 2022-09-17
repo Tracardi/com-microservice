@@ -144,11 +144,18 @@ repo = ServicesRepo(
 
             plugins={
                 "3d0828b8-9e17-4ae8-ab0c-d82fd3638b3d": PluginConfig(
-                    name="Show snack bar",
+                    name="Info pop-up",
                     validator=ux.snackbar.plugin.validate,
                     plugin=ux.snackbar.plugin.SnackBarUx,
                     registry=ux.snackbar.plugin.register()
-                )
+                ),
+                "bb7ecaf8-e3c9-424a-a3bd-df79e006e897": PluginConfig(
+                    name="Rating widget",
+                    validator=ux.rating_popup.plugin.validate,
+                    plugin=ux.rating_popup.plugin.RatingPopupPlugin,
+                    registry=ux.rating_popup.plugin.register()
+                ),
             }
-        )
+        ),
+
     })
