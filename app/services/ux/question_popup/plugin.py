@@ -42,8 +42,9 @@ class QuestionPopupPlugin(ActionRunner):
                 "data-horizontal-position": self.config.horizontal_pos,
                 "data-vertical-position": self.config.vertical_pos,
                 "data-popup-lifetime": self.config.popup_lifetime,
-                "data-theme": "dark" if self.config.dark_theme else "",
+                "data-bg-color": self.config.background_color,
                 "data-event-type": self.config.event_type,
+                "data-text-color": self.config.text_color,
                 "data-save-event": "yes" if self.config.save_event else "no",
                 "data-profile-id": self.event.profile.id
             }
@@ -79,7 +80,8 @@ def register() -> Plugin:
                 "event_type": None,
                 "save_event": True,
                 "popup_lifetime": "6",
-                "dark_theme": False,
+                "background_color": "white",
+                "text_color": "black",
             },
             form=Form(
                 groups=[
@@ -144,10 +146,14 @@ def register() -> Plugin:
                                 }})
                             ),
                             FormField(
-                                id="dark_theme",
-                                name="Dark theme",
-                                description="You can switch to dark mode for your popup. Default theme is bright.",
-                                component=FormComponent(type="bool", props={"label": "Dark mode"})
+                                id="background_color",
+                                name="Background color",
+                                component=FormComponent(type="text", props={"label": "Background color"})
+                            ),
+                            FormField(
+                                id="text_color",
+                                name="Text color",
+                                component=FormComponent(type="text", props={"label": "Text color"})
                             )
                         ]
                     ),

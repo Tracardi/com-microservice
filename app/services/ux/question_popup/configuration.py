@@ -14,7 +14,8 @@ class Config(PluginConfig):
     event_type: str
     save_event: bool
     popup_lifetime: str
-    dark_theme: bool
+    background_color: str = "white"
+    text_color: str = "black"
 
     @validator("popup_lifetime")
     def validate_popup_lifetime(cls, value):
