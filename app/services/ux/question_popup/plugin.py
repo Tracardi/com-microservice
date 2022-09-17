@@ -1,11 +1,12 @@
 from typing import Optional
+from uuid import uuid4
 
 from app.services.ux.micro_front_end_location import MicroFrontEndLocation
-from app.services.ux.rating_popup.configuration import Config
-from tracardi.service.plugin.domain.register import Plugin, Spec, MetaData, Documentation, PortDoc, Form, FormGroup, \
+from app.services.ux.question_popup.configuration import Config
+from tracardi.service.plugin.domain.register import Plugin, Spec, MetaData, Form, FormGroup, \
     FormField, FormComponent
-from tracardi.service.plugin.runner import ActionRunner
 from tracardi.service.plugin.domain.result import Result
+from tracardi.service.plugin.runner import ActionRunner
 from tracardi.service.notation.dot_template import DotTemplate
 
 
@@ -13,7 +14,7 @@ async def validate(config: dict, credentials: Optional[dict]) -> Config:
     return Config(**config)
 
 
-class RatingPopupPlugin(ActionRunner):
+class QuestionPopupPlugin(ActionRunner):
     resource: MicroFrontEndLocation
     config: Config
 
@@ -25,27 +26,32 @@ class RatingPopupPlugin(ActionRunner):
         dot = self._get_dot_accessor(payload)
         template = DotTemplate()
 
-        message = template.render(self.config.message, dot)
+        content = template.render(self.config.content, dot)
 
         self.ux.append({
             "tag": "div",
             "props": {
-                "class": "tracardi-uix-rating-widget",
-                "data-position-vertical": self.config.vertical_position,
-                "data-position-horizontal": self.config.horizontal_position,
-                "data-title": self.config.title,
-                "data-message": message,
-                "data-event-type": self.config.event_type,
+                "class": "tracardi-question-widget",
                 "data-api-url": self.config.api_url,
-                "data-theme": "dark" if self.config.dark_theme else "",
-                "data-auto-hide": self.config.lifetime,
                 "data-source-id": self.event.source.id,
-                "data-profile-id": self.event.profile.id,
-                "data-session-id": self.event.session.id,
-                "data-save-event": "yes" if self.config.save_event else "no"
+                "data-session-id": self.session.id if self.session is not None else str(uuid4()),
+                "data-left-button-text": self.config.left_button_text,
+                "data-right-button-text": self.config.right_button_text,
+                "data-popup-title": self.config.popup_title,
+                "data-content": content,
+                "data-horizontal-position": self.config.horizontal_pos,
+                "data-vertical-position": self.config.vertical_pos,
+                "data-popup-lifetime": self.config.popup_lifetime,
+                "data-theme": "dark" if self.config.dark_theme else "",
+                "data-event-type": self.config.event_type,
+                "data-save-event": "yes" if self.config.save_event else "no",
+                "data-profile-id": self.event.profile.id
             }
         })
-        self.ux.append({"tag": "script", "props": {"src": f"{self.resource.uix_mf_source}/uix/rating_popup/index.js"}})
+        self.ux.append({
+            "tag": "script",
+            "props": {"src": f"{self.resource.uix_mf_source}/uix/question-popup/index.js"}
+        })
 
         return Result(port="response", value=payload)
 
@@ -55,46 +61,48 @@ def register() -> Plugin:
         start=False,
         spec=Spec(
             module=__name__,
-            className='RatingPopupPlugin',
+            className='QuestionPopupPlugin',
             inputs=["payload"],
             outputs=["response", "error"],
             version='0.7.2',
             license="MIT",
             author="Dawid Kruk, Risto Kowaczewski",
-            manual="rating_popup_action",
+            manual="question_popup_action",
             init={
                 "api_url": "http://localhost:8686",
-                "title": None,
-                "message": None,
-                "lifetime": "6",
-                "horizontal_position": "center",
-                "vertical_position": "bottom",
+                "popup_title": None,
+                "content": None,
+                "left_button_text": None,
+                "right_button_text": None,
+                "horizontal_pos": "center",
+                "vertical_pos": "bottom",
                 "event_type": None,
                 "save_event": True,
-                "dark_theme": False
+                "popup_lifetime": "6",
+                "dark_theme": False,
             },
             form=Form(
                 groups=[
                     FormGroup(
-                        name="Rating widget configuration",
+                        name="Pop-up configuration",
                         fields=[
                             FormField(
-                                id="title",
-                                name="Title",
-                                description="This text will become a title for your rating popup.",
+                                id="popup_title",
+                                name="Popup title",
+                                description="This text will become a title for your popup.",
                                 component=FormComponent(type="text", props={"label": "Title"})
                             ),
                             FormField(
-                                id="message",
-                                name="Popup message",
-                                description="That's the message to be displayed in the rating popup. You can use a "
-                                            "template here.",
+                                id="content",
+                                name="Popup content",
+                                description="That's the message to be displayed in the popup. You can use a template "
+                                            "here.",
                                 component=FormComponent(type="textarea", props={"label": "Message"})
                             ),
                             FormField(
-                                id="lifetime",
+                                id="popup_lifetime",
                                 name="Popup lifetime",
-                                description="Please provide a number of seconds for the rating popup to be displayed.",
+                                description="Please provide a number of seconds for the popup to be displayed.",
                                 component=FormComponent(type="text", props={"label": "Lifetime"})
                             ),
                         ]
@@ -103,7 +111,21 @@ def register() -> Plugin:
                         name="Positioning and Styling",
                         fields=[
                             FormField(
-                                id="horizontal_position",
+                                id="left_button_text",
+                                name="Left button text",
+                                description="That's the text to be displayed on the left button. It will be sent back "
+                                            "in event properties if left button gets clicked.",
+                                component=FormComponent(type="text", props={"label": "Left button"})
+                            ),
+                            FormField(
+                                id="right_button_text",
+                                name="Right button text",
+                                description="That's the text to be displayed on the right button. It will be sent back "
+                                            "in event properties if right button gets clicked.",
+                                component=FormComponent(type="text", props={"label": "Right button"})
+                            ),
+                            FormField(
+                                id="horizontal_pos",
                                 name="Horizontal position",
                                 description="That's the horizontal position of your popup.",
                                 component=FormComponent(type="select", props={"label": "Horizontal position", "items": {
@@ -113,7 +135,7 @@ def register() -> Plugin:
                                 }})
                             ),
                             FormField(
-                                id="vertical_position",
+                                id="vertical_pos",
                                 name="Vertical position",
                                 description="That's the vertical position of your popup.",
                                 component=FormComponent(type="select", props={"label": "Vertical position", "items": {
@@ -130,18 +152,19 @@ def register() -> Plugin:
                         ]
                     ),
                     FormGroup(
-                        name="Reporting rating",
+                        name="Event configuration",
+                        description="When the user answers the question an event will be sent back to Tracardi.",
                         fields=[
                             FormField(
                                 id="api_url",
                                 name="API URL",
-                                description="Provide a URL of Tracardi instance to send event with rating.",
+                                description="Provide a URL of Tracardi instance to send event with answer.",
                                 component=FormComponent(type="text", props={"label": "API URL"})
                             ),
                             FormField(
                                 id="event_type",
                                 name="Event type",
-                                description="Please provide a type of event to be sent back after selecting rating.",
+                                description="Please provide a type of event to be sent back.",
                                 component=FormComponent(type="text", props={"label": "Event type"})
                             ),
                             FormField(
@@ -156,18 +179,10 @@ def register() -> Plugin:
             )
         ),
         metadata=MetaData(
-            name='Rating widget',
-            desc='Shows rating widget with defined title and content.',
+            name='Question popup',
+            desc='Shows question popup to user, according to configuration.',
             icon='react',
             group=["UIX Widgets"],
-            documentation=Documentation(
-                inputs={
-                    "payload": PortDoc(desc="This port takes payload object.")
-                },
-                outputs={
-                    "payload": PortDoc(desc="This port returns given payload without any changes.")
-                }
-            ),
             frontend=True
         )
     )

@@ -155,6 +155,24 @@ repo = ServicesRepo(
                     plugin=ux.rating_popup.plugin.RatingPopupPlugin,
                     registry=ux.rating_popup.plugin.register()
                 ),
+                "aaaecaf8-efc9-c24b-a34d-df79e003486": PluginConfig(
+                    name="Question pop-up",
+                    validator=ux.question_popup.plugin.validate,
+                    plugin=ux.question_popup.plugin.QuestionPopupPlugin,
+                    registry=ux.question_popup.plugin.register()
+                ),
+                "730e35c1-d973-4672-9630-bad52c8d67ed": PluginConfig(
+                    name="CTA message",
+                    validator=ux.cta_message.plugin.validate,
+                    plugin=ux.cta_message.plugin.CtaMessageUx,
+                    registry=ux.cta_message.plugin.register()
+                ),
+                "4d98e211-7f80-4807-8616-3d9a24570122": PluginConfig(
+                    name="Contact form",
+                    validator=ux.contact_popup.plugin.validate,
+                    plugin=ux.contact_popup.plugin.ContactPopupPlugin,
+                    registry=ux.contact_popup.plugin.register()
+                )
             }
         ),
 

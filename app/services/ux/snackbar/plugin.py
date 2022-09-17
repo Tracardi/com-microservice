@@ -1,7 +1,7 @@
 from typing import Optional
 from app.services.ux.micro_front_end_location import MicroFrontEndLocation
 from app.services.ux.snackbar.configuration import Configuration
-from tracardi.service.plugin.domain.register import Plugin, Spec, MetaData, Documentation, PortDoc, Form, FormGroup, \
+from tracardi.service.plugin.domain.register import Plugin, Spec, MetaData, Form, FormGroup, \
     FormField, FormComponent
 from tracardi.service.plugin.runner import ActionRunner
 from tracardi.service.plugin.domain.result import Result
@@ -116,12 +116,6 @@ def register() -> Plugin:
             desc='Shows snack bar pop-up on the front end.',
             icon='react',
             group=["UIX Widgets"],
-            documentation=Documentation(
-                inputs={
-                    "payload": PortDoc(desc="This port takes payload object.")
-                },
-                outputs={"payload": PortDoc(desc="This port returns input payload object.")}
-            ),
             frontend=True
         )
     )

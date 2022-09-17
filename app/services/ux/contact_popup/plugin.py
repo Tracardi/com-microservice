@@ -1,11 +1,12 @@
 from typing import Optional
+from uuid import uuid4
 
+from app.services.ux.contact_popup.configuration import Config
 from app.services.ux.micro_front_end_location import MicroFrontEndLocation
-from app.services.ux.rating_popup.configuration import Config
-from tracardi.service.plugin.domain.register import Plugin, Spec, MetaData, Documentation, PortDoc, Form, FormGroup, \
+from tracardi.service.plugin.domain.register import Plugin, Spec, MetaData, Form, FormGroup, \
     FormField, FormComponent
-from tracardi.service.plugin.runner import ActionRunner
 from tracardi.service.plugin.domain.result import Result
+from tracardi.service.plugin.runner import ActionRunner
 from tracardi.service.notation.dot_template import DotTemplate
 
 
@@ -13,7 +14,7 @@ async def validate(config: dict, credentials: Optional[dict]) -> Config:
     return Config(**config)
 
 
-class RatingPopupPlugin(ActionRunner):
+class ContactPopupPlugin(ActionRunner):
     resource: MicroFrontEndLocation
     config: Config
 
@@ -25,27 +26,36 @@ class RatingPopupPlugin(ActionRunner):
         dot = self._get_dot_accessor(payload)
         template = DotTemplate()
 
-        message = template.render(self.config.message, dot)
+        content = template.render(self.config.content, dot)
 
+        self.ux.append({
+            "tag": "link",
+            "props": {
+                "rel": "stylesheet",
+                "href": f"{self.resource.uix_mf_source}/uix/contact-popup/index.css"
+            }
+        })
         self.ux.append({
             "tag": "div",
             "props": {
-                "class": "tracardi-uix-rating-widget",
-                "data-position-vertical": self.config.vertical_position,
-                "data-position-horizontal": self.config.horizontal_position,
-                "data-title": self.config.title,
-                "data-message": message,
-                "data-event-type": self.config.event_type,
+                "class": "tracardi-uix-contact-widget",
+                "data-message": content,
+                "data-contact-type": self.config.contact_type,
                 "data-api-url": self.config.api_url,
-                "data-theme": "dark" if self.config.dark_theme else "",
-                "data-auto-hide": self.config.lifetime,
                 "data-source-id": self.event.source.id,
                 "data-profile-id": self.event.profile.id,
-                "data-session-id": self.event.session.id,
+                "data-session-id": self.session.id if self.session is not None else str(uuid4()),
+                "data-event-type": self.config.event_type,
+                "data-theme": "dark" if self.config.dark_theme else "",
+                "data-position-horizontal": self.config.horizontal_pos,
+                "data-position-vertical": self.config.vertical_pos,
                 "data-save-event": "yes" if self.config.save_event else "no"
             }
         })
-        self.ux.append({"tag": "script", "props": {"src": f"{self.resource.uix_mf_source}/uix/rating_popup/index.js"}})
+        self.ux.append({
+            "tag": "script",
+            "props": {"src": f"{self.resource.uix_mf_source}/uix/contact-popup/index.js"}
+        })
 
         return Result(port="response", value=payload)
 
@@ -55,20 +65,19 @@ def register() -> Plugin:
         start=False,
         spec=Spec(
             module=__name__,
-            className='RatingPopupPlugin',
+            className='ContactPopupPlugin',
             inputs=["payload"],
             outputs=["response", "error"],
             version='0.7.2',
             license="MIT",
             author="Dawid Kruk, Risto Kowaczewski",
-            manual="rating_popup_action",
+            manual="contact_popup_action",
             init={
                 "api_url": "http://localhost:8686",
-                "title": None,
-                "message": None,
-                "lifetime": "6",
-                "horizontal_position": "center",
-                "vertical_position": "bottom",
+                "content": None,
+                "contact_type": "email",
+                "horizontal_pos": "center",
+                "vertical_pos": "bottom",
                 "event_type": None,
                 "save_event": True,
                 "dark_theme": False
@@ -76,26 +85,23 @@ def register() -> Plugin:
             form=Form(
                 groups=[
                     FormGroup(
-                        name="Rating widget configuration",
+                        name="Contact form configuration",
                         fields=[
                             FormField(
-                                id="title",
-                                name="Title",
-                                description="This text will become a title for your rating popup.",
-                                component=FormComponent(type="text", props={"label": "Title"})
-                            ),
-                            FormField(
-                                id="message",
+                                id="content",
                                 name="Popup message",
-                                description="That's the message to be displayed in the rating popup. You can use a "
-                                            "template here.",
+                                description="That's the message to be displayed in the popup. You can use a template "
+                                            "here.",
                                 component=FormComponent(type="textarea", props={"label": "Message"})
                             ),
                             FormField(
-                                id="lifetime",
-                                name="Popup lifetime",
-                                description="Please provide a number of seconds for the rating popup to be displayed.",
-                                component=FormComponent(type="text", props={"label": "Lifetime"})
+                                id="contact_type",
+                                name="Contact data type",
+                                description="Please select type of the contact data to be provided by user.",
+                                component=FormComponent(type="select", props={"label": "Contact", "items": {
+                                    "email": "Email",
+                                    "phone": "Phone number"
+                                }})
                             ),
                         ]
                     ),
@@ -103,7 +109,7 @@ def register() -> Plugin:
                         name="Positioning and Styling",
                         fields=[
                             FormField(
-                                id="horizontal_position",
+                                id="horizontal_pos",
                                 name="Horizontal position",
                                 description="That's the horizontal position of your popup.",
                                 component=FormComponent(type="select", props={"label": "Horizontal position", "items": {
@@ -113,7 +119,7 @@ def register() -> Plugin:
                                 }})
                             ),
                             FormField(
-                                id="vertical_position",
+                                id="vertical_pos",
                                 name="Vertical position",
                                 description="That's the vertical position of your popup.",
                                 component=FormComponent(type="select", props={"label": "Vertical position", "items": {
@@ -130,18 +136,22 @@ def register() -> Plugin:
                         ]
                     ),
                     FormGroup(
-                        name="Reporting rating",
+                        name="Event configuration",
+                        description="When the user fills the form an event with its content will be sent back to "
+                                    "Tracardi.",
                         fields=[
                             FormField(
                                 id="api_url",
                                 name="API URL",
-                                description="Provide a URL of Tracardi instance to send event with rating.",
+                                description="Provide a URL of Tracardi instance to send event with contact "
+                                            "information.",
                                 component=FormComponent(type="text", props={"label": "API URL"})
                             ),
                             FormField(
                                 id="event_type",
                                 name="Event type",
-                                description="Please provide a type of event to be sent back after selecting rating.",
+                                description="Please provide a type of event to be sent back after submitting contact "
+                                            "data by the user.",
                                 component=FormComponent(type="text", props={"label": "Event type"})
                             ),
                             FormField(
@@ -156,18 +166,10 @@ def register() -> Plugin:
             )
         ),
         metadata=MetaData(
-            name='Rating widget',
-            desc='Shows rating widget with defined title and content.',
+            name='Contact form',
+            desc='Shows a popup with field for contact data to user, according to configuration.',
             icon='react',
             group=["UIX Widgets"],
-            documentation=Documentation(
-                inputs={
-                    "payload": PortDoc(desc="This port takes payload object.")
-                },
-                outputs={
-                    "payload": PortDoc(desc="This port returns given payload without any changes.")
-                }
-            ),
             frontend=True
         )
     )
