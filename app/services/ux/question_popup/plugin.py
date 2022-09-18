@@ -42,9 +42,9 @@ class QuestionPopupPlugin(ActionRunner):
                 "data-horizontal-position": self.config.horizontal_pos,
                 "data-vertical-position": self.config.vertical_pos,
                 "data-popup-lifetime": self.config.popup_lifetime,
-                "data-bg-color": self.config.background_color,
+                "data-bg-color": self.config.styling.color.background,
                 "data-event-type": self.config.event_type,
-                "data-text-color": self.config.text_color,
+                "data-text-color": self.config.styling.color.text,
                 "data-save-event": "yes" if self.config.save_event else "no",
                 "data-profile-id": self.event.profile.id
             }
@@ -71,8 +71,8 @@ def register() -> Plugin:
             manual="question_popup_action",
             init={
                 "api_url": "http://localhost:8686",
-                "popup_title": None,
-                "content": None,
+                "popup_title": "",
+                "content": "",
                 "left_button_text": None,
                 "right_button_text": None,
                 "horizontal_pos": "center",
@@ -80,8 +80,23 @@ def register() -> Plugin:
                 "event_type": None,
                 "save_event": True,
                 "popup_lifetime": "6",
-                "background_color": "white",
-                "text_color": "black",
+                "styling": {
+                    "margin": {
+                        "left": 0, "top": 0, "right": 0, "bottom": 0
+                    },
+                    "padding": {
+                        "left": 0, "top": 0, "right": 0, "bottom": 0
+                    },
+                    "color": {
+                        "background": "rgba(229,229,229,0.9)",
+                        "text": "rgba(0,0,0,1)"
+                    },
+                    "border": {
+                        "size": 0,
+                        "radius": 0,
+                        "color": "black"
+                    }
+                }
             },
             form=Form(
                 groups=[
@@ -110,7 +125,7 @@ def register() -> Plugin:
                         ]
                     ),
                     FormGroup(
-                        name="Positioning and Styling",
+                        name="Button text",
                         fields=[
                             FormField(
                                 id="left_button_text",
@@ -126,6 +141,11 @@ def register() -> Plugin:
                                             "in event properties if right button gets clicked.",
                                 component=FormComponent(type="text", props={"label": "Right button"})
                             ),
+                            ]
+                    ),
+                    FormGroup(
+                        name="Positioning",
+                        fields=[
                             FormField(
                                 id="horizontal_pos",
                                 name="Horizontal position",
@@ -145,15 +165,15 @@ def register() -> Plugin:
                                     "bottom": "Bottom"
                                 }})
                             ),
+                            ]
+                    ),
+                    FormGroup(
+                        name="Styling",
+                        fields=[
                             FormField(
-                                id="background_color",
-                                name="Background color",
-                                component=FormComponent(type="text", props={"label": "Background color"})
-                            ),
-                            FormField(
-                                id="text_color",
-                                name="Text color",
-                                component=FormComponent(type="text", props={"label": "Text color"})
+                                id="styling",
+                                name="Pup-up styling",
+                                component=FormComponent(type="boxStyling")
                             )
                         ]
                     ),
