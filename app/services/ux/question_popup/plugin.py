@@ -172,7 +172,7 @@ def register() -> Plugin:
                         fields=[
                             FormField(
                                 id="styling",
-                                name="Pup-up styling",
+                                name="Pop-up styling",
                                 component=FormComponent(type="boxStyling")
                             )
                         ]
