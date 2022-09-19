@@ -17,12 +17,11 @@ class TrelloClient:
             async with client.get(
                     url=f'https://api.trello.com/1/members/me/boards?key={self.api_key}&token={self.token}'
             ) as response:
-                result = await response.json()
                 if response.status != 200:
                     raise ConnectionError("Expected response status 200 got {} "
                                           "with message {}".format(response.status,
-                                                                   result))
-
+                                                                   await response.text()))
+                result = await response.json()
                 boards = list(filter(lambda x: x["url"] == board_url, result))
                 if not boards:
                     raise ValueError("Given board does not exist")
@@ -31,12 +30,12 @@ class TrelloClient:
                     url=f'https://api.trello.com/1/boards/{boards.pop()["id"]}/lists?'
                         f'key={self.api_key}&token={self.token}'
             ) as response:
-                result = await response.json()
+
                 if response.status != 200:
                     raise ConnectionError("Expected response status 200 got {} "
                                           "with message {}".format(response.status,
-                                                                   result))
-
+                                                                   await response.text()))
+                result = await response.json()
                 lists = list(filter(lambda x: x["name"] == list_name, result))
                 if not lists:
                     raise ValueError("Given list does not exist.")
@@ -52,13 +51,12 @@ class TrelloClient:
                     },
                     data={key: val for key, val in kwargs.items() if val is not None}
             ) as response:
-                result = await response.json()
                 if response.status != 200:
                     raise ConnectionError("Expected response status 200 got {} "
                                           "with message {}".format(response.status,
-                                                                   result))
+                                                                   await response.text()))
 
-                return result
+                return await response.json()
 
     async def delete_card(self, list_id: str, card_name: str) -> dict:
         async with HttpClient(self.retries) as client:
@@ -66,12 +64,11 @@ class TrelloClient:
                     url=f"https://api.trello.com/1/lists/{list_id}/cards?key={self.api_key}&token={self.token}"
             ) as response:
 
-                result = await response.json()
                 if response.status != 200:
                     raise ConnectionError("Expected response status 200 got {} "
                                           "with message {}".format(response.status,
-                                                                   result))
-
+                                                                   await response.text()))
+                result = await response.json()
                 cards = list(filter(lambda x: x["name"] == card_name, result))
 
                 if not cards:
@@ -83,13 +80,12 @@ class TrelloClient:
                     url=f"https://api.trello.com/1/cards/{card_id}?key={self.api_key}&token={self.token}"
             ) as response:
 
-                result = await response.json()
                 if response.status != 200:
                     raise ConnectionError("Expected response status 200 got {} "
                                           "with message {}".format(response.status,
-                                                                   result))
+                                                                   await response.text()))
 
-                return result
+                return await response.json()
 
     async def move_card(self, current_list_id: str, list_id: str, card_name: str) -> dict:
         async with HttpClient(self.retries) as client:
@@ -97,12 +93,11 @@ class TrelloClient:
                     url=f"https://api.trello.com/1/lists/{current_list_id}/cards?key={self.api_key}&token={self.token}"
             ) as response:
 
-                result = await response.json()
                 if response.status != 200:
                     raise ConnectionError("Expected response status 200 got {} "
                                           "with message {}".format(response.status,
-                                                                   result))
-
+                                                                   await response.text()))
+                result = await response.json()
                 cards = list(filter(lambda x: x["name"] == card_name, result))
 
                 if not cards:
@@ -116,25 +111,24 @@ class TrelloClient:
                         "idList": list_id
                     }
             ) as response:
-                result = await response.json()
+
                 if response.status != 200:
                     raise ConnectionError("Expected response status 200 got {} "
                                           "with message {}".format(response.status,
-                                                                   result))
-
-                return result
+                                                                   await response.text()))
+                return await response.json()
 
     async def add_member(self, list_id: str, card_name: str, member_id: str) -> dict:
         async with HttpClient(self.retries) as client:
             async with client.get(
                     url=f"https://api.trello.com/1/lists/{list_id}/cards?key={self.api_key}&token={self.token}"
             ) as response:
-                result = await response.json()
+
                 if response.status != 200:
                     raise ConnectionError("Expected response status 200 got {} "
                                           "with message {}".format(response.status,
-                                                                   result))
-
+                                                                   await response.text()))
+                result = await response.json()
                 cards = list(filter(lambda x: x["name"] == card_name, result))
                 if not cards:
                     raise ValueError("Given card does not exist.")
@@ -147,10 +141,9 @@ class TrelloClient:
                         "value": member_id
                     }
             ) as response:
-                result = await response.json()
                 if response.status != 200:
                     raise ConnectionError("Expected response status 200 got {} "
                                           "with message {}".format(response.status,
-                                                                   result))
+                                                                   await response.text()))
 
-                return result
+                return await response.json()
