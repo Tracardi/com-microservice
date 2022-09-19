@@ -124,7 +124,7 @@ repo = ServicesRepo(
                 ),
                 metadata=MetaData(
                     name='UIX Widgets Microservice',
-                    desc='Microservice that runs Trello plugins.',
+                    desc='Microservice that runs UIX widgets.',
                     icon='react',
                     group=["UIX Widgets"],
                     tags=['microservice', 'remote', 'uix'],
@@ -172,6 +172,12 @@ repo = ServicesRepo(
                     validator=ux.contact_popup.plugin.validate,
                     plugin=ux.contact_popup.plugin.ContactPopupPlugin,
                     registry=ux.contact_popup.plugin.register()
+                ),
+                "a95408e2-c090-40d4-99dd-185e26aaab0f": PluginConfig(
+                    name="Custom widget",
+                    validator=ux.generic.plugin.validate,
+                    plugin=ux.generic.plugin.GenericUixPlugin,
+                    registry=ux.generic.plugin.register()
                 )
             }
         ),
