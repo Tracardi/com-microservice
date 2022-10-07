@@ -45,6 +45,7 @@ class QuestionPopupPlugin(ActionRunner):
                 "data-bg-color": self.config.styling.color.background,
                 "data-event-type": self.config.event_type,
                 "data-text-color": self.config.styling.color.text,
+                "data-title-size": self.config.title.size,
                 "data-border-width": self.config.styling.border.size,
                 "data-border-radius": self.config.styling.border.radius,
                 "data-border-color": self.config.styling.border.color,
@@ -106,7 +107,10 @@ def register() -> Plugin:
                         "size": 0,
                         "radius": 0,
                         "color": "black"
-                    }
+                    },
+                },
+                "title": {
+                    "size": 22,
                 }
             },
             form=Form(
@@ -185,6 +189,11 @@ def register() -> Plugin:
                                 id="styling",
                                 name="Pop-up styling",
                                 component=FormComponent(type="boxStyling")
+                            ),
+                            FormField(
+                                id="title.size",
+                                name="Title size",
+                                component=FormComponent(type="fontSize", props={"label": "Size", "outline": False})
                             )
                         ]
                     ),

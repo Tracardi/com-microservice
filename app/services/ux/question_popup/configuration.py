@@ -28,6 +28,10 @@ class Styling(PluginConfig):
     border: Border
 
 
+class Title(PluginConfig):
+    size: str
+
+
 class Config(PluginConfig):
     api_url: str
     popup_title: str
@@ -40,6 +44,7 @@ class Config(PluginConfig):
     save_event: bool
     popup_lifetime: str
     styling: Styling
+    title: Title
 
     @validator("popup_lifetime")
     def validate_popup_lifetime(cls, value):
