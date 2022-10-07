@@ -45,6 +45,17 @@ class QuestionPopupPlugin(ActionRunner):
                 "data-bg-color": self.config.styling.color.background,
                 "data-event-type": self.config.event_type,
                 "data-text-color": self.config.styling.color.text,
+                "data-border-width": self.config.styling.border.size,
+                "data-border-radius": self.config.styling.border.radius,
+                "data-border-color": self.config.styling.border.color,
+                "data-padding-left": self.config.styling.padding.left,
+                "data-padding-right": self.config.styling.padding.right,
+                "data-padding-top": self.config.styling.padding.top,
+                "data-padding-bottom": self.config.styling.padding.bottom,
+                "data-margin-left": self.config.styling.margin.left,
+                "data-margin-right": self.config.styling.margin.right,
+                "data-margin-top": self.config.styling.margin.top,
+                "data-margin-bottom": self.config.styling.margin.bottom,
                 "data-save-event": "yes" if self.config.save_event else "no",
                 "data-profile-id": self.event.profile.id
             }
