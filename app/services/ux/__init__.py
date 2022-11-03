@@ -4,3 +4,6 @@ from .question_popup.plugin import QuestionPopupPlugin
 from .cta_message.plugin import CtaMessageUx
 from .contact_popup.plugin import ContactPopupPlugin
 from .generic.plugin import GenericUixPlugin
+from .chats.chatwoot.plugin import ChatwootWidgetUx
+from .chats.zendesk.plugin import ZendeskWidgetPlugin
+from .chats.livechat.plugin import LivechatWidgetPlugin

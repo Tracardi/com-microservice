@@ -178,6 +178,24 @@ repo = ServicesRepo(
                     validator=ux.generic.plugin.validate,
                     plugin=ux.generic.plugin.GenericUixPlugin,
                     registry=ux.generic.plugin.register()
+                ),
+                "374408e2-99dd-c090-40d4-185e26aaab0f": PluginConfig(
+                    name="Chatwoot widget",
+                    validator=ux.chats.chatwoot.plugin.validate,
+                    plugin=ux.chats.chatwoot.plugin.ChatwootWidgetUx,
+                    registry=ux.chats.chatwoot.plugin.register()
+                ),
+                "faed4268-7856-4c23-ae58-1b99a3633062": PluginConfig(
+                    name="Zendesk widget",
+                    validator=ux.chats.zendesk.plugin.validate,
+                    plugin=ux.chats.zendesk.plugin.ZendeskWidgetPlugin,
+                    registry=ux.chats.zendesk.plugin.register()
+                ),
+                "99100a00-5801-454a-8a81-91aa2244cedf": PluginConfig(
+                    name="Livechat widget",
+                    validator=ux.chats.livechat.plugin.validate,
+                    plugin=ux.chats.livechat.plugin.LivechatWidgetPlugin,
+                    registry=ux.chats.livechat.plugin.register()
                 )
             }
         ),

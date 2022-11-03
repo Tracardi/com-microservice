@@ -39,7 +39,10 @@ class CtaMessageUx(ActionRunner):
                 "data-max-width": self.config.max_width
             }
         })
-        self.ux.append({"tag": "script", "props": {"src": f"{self.resource.uix_mf_source}/uix/cta-message/index.js"}})
+        self.ux.append({
+            "tag": "script",
+            "props": {"src": f"{self.resource.uix_mf_source}/uix/cta-message/index.js"}
+        })
 
         return Result(port="response", value=payload)
 
@@ -49,7 +52,7 @@ def register() -> Plugin:
         start=False,
         spec=Spec(
             module=__name__,
-            className='CtaMessageUx',
+            className=CtaMessageUx.__name__,
             inputs=["payload"],
             outputs=["response", "error"],
             init={
