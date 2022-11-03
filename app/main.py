@@ -30,7 +30,8 @@ application = FastAPI(
         "url": "http://github.com/tracardi/trello-microservice",
         "email": "office@tracardi.com",
     },
-
+    docs_url=None,
+    redoc_url=None,
 )
 
 application.mount("/uix",

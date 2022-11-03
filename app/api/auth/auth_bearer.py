@@ -1,15 +1,25 @@
+import logging
+
 import hashlib
 import jwt
 from typing import Dict, Optional
 from fastapi import Request, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from decouple import config
+from decouple import config, UndefinedValueError
 from app.config import microservice
 from pydantic import BaseModel
 
-JWT_SECRET = config("SECRET")
-JWT_SECRET_SALT = f"{JWT_SECRET}-lsd93ufifmdk934mI79wsu"
-JWT_ALGORITHM = 'HS256'
+logging.basicConfig(level=logging.ERROR)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+try:
+    JWT_SECRET = config("SECRET")
+    JWT_SECRET_SALT = f"{JWT_SECRET}-lsd93ufifmdk934mI79wsu"
+    JWT_ALGORITHM = 'HS256'
+except UndefinedValueError as e:
+    logger.error(f"SECRET environment variable not defined. {str(e)}")
+    exit(1)
 
 
 class ApiKeyPayload(BaseModel):
