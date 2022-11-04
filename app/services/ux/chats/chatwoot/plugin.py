@@ -56,7 +56,7 @@ class ChatwootWidgetUx(ActionRunner):
             "type": "text/javascript",
             "content": content
         })
-        return Result(port="payload", value=payload)
+        return Result(port="response", value=payload)
 
 
 def register() -> Plugin:
@@ -67,7 +67,7 @@ def register() -> Plugin:
             className=ChatwootWidgetUx.__name__,
             brand="Chatwoot",
             inputs=["payload"],
-            outputs=["payload"],
+            outputs=["response", "error"],
             version='0.7.3',
             license="MIT",
             author="Risto Kowaczewski",

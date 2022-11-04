@@ -44,7 +44,7 @@ class LivechatWidgetPlugin(ActionRunner):
             "type": "text/javascript",
             "content": content
         })
-        return Result(port="payload", value=payload)
+        return Result(port="response", value=payload)
 
 
 def register() -> Plugin:
@@ -55,7 +55,7 @@ def register() -> Plugin:
             className=LivechatWidgetPlugin.__name__,
             brand="livechat",
             inputs=["payload"],
-            outputs=["payload"],
+            outputs=["response", "error"],
             version='0.7.3',
             license="MIT",
             author="Risto Kowaczewski",

@@ -34,7 +34,7 @@ class ZendeskWidgetPlugin(ActionRunner):
             "tag": "script",
             "props": {"src": self.config.script_url, "id": "ze-snippet"}
         })
-        return Result(port="payload", value=payload)
+        return Result(port="response", value=payload)
 
 
 def register() -> Plugin:
@@ -45,7 +45,7 @@ def register() -> Plugin:
             className=ZendeskWidgetPlugin.__name__,
             brand="Zendesk",
             inputs=["payload"],
-            outputs=["payload"],
+            outputs=["response", "error"],
             version='0.7.3',
             license="MIT",
             author="Risto Kowaczewski",
