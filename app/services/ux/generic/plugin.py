@@ -19,7 +19,6 @@ class GenericUixPlugin(ActionRunner):
         self.config = Config(**init)
 
     async def run(self, payload: dict, in_edge=None) -> Result:
-        print('run')
         dot = self._get_dot_accessor(payload)
         traverser = DictTraverser(dot)
         props = traverser.reshape(self.config.props)

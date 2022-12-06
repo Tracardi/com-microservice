@@ -196,6 +196,12 @@ repo = ServicesRepo(
                     validator=ux.chats.livechat.plugin.validate,
                     plugin=ux.chats.livechat.plugin.LivechatWidgetPlugin,
                     registry=ux.chats.livechat.plugin.register()
+                ),
+                "87300a00-5801-454a-8a81-91aa22448d64": PluginConfig(
+                    name="Javascript tag",
+                    validator=ux.custom_js.plugin.validate,
+                    plugin=ux.custom_js.plugin.GenericJsScriptPlugin,
+                    registry=ux.custom_js.plugin.register()
                 )
             }
         ),
