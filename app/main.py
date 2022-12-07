@@ -1,15 +1,12 @@
 import logging
 import os
 from time import time
-
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Request
 from starlette.responses import JSONResponse
 from starlette.staticfiles import StaticFiles
-
 from app import config
 from app.api import service_endpoint, auth_endpoint
-
 from tracardi.config import tracardi
 
 logging.basicConfig(level=logging.ERROR)
@@ -64,7 +61,6 @@ async def add_process_time_header(request: Request, call_next):
         return response
 
     except Exception as e:
-        logger.error("Endpoint exception", exc_info=True)
         return JSONResponse(status_code=500,
                             headers={
                                 "access-control-allow-credentials": "true",
