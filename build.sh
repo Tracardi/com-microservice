@@ -1,3 +1,3 @@
 git rev-parse HEAD > app/uix/revision.txt
-docker build . --no-cache -t tracardi/tracardi-microservice:0.7.4-dev
-docker push tracardi/tracardi-microservice:0.7.4-dev
+docker build . --no-cache -t tracardi/com-microservice:0.8.0-dev
+docker push tracardi/com-microservice:0.8.0-dev
