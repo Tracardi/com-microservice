@@ -24,6 +24,8 @@ async def validate(config: dict, credentials: Optional[dict]):
     ...
 ```
 
+Remember to set async.
+
 4. Change the `set_up` method so validation is through config object not validate function:
 
 ```Python

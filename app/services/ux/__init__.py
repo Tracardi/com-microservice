@@ -7,4 +7,5 @@ from .generic.plugin import GenericUixPlugin
 from .chats.chatwoot.plugin import ChatwootWidgetUx
 from .chats.zendesk.plugin import ZendeskWidgetPlugin
 from .chats.livechat.plugin import LivechatWidgetPlugin
+from .chats.intercom.plugin import IntercomWidgetPlugin
 from .custom_js.plugin import GenericJsScriptPlugin

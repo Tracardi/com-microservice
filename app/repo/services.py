@@ -197,12 +197,18 @@ repo = ServicesRepo(
                     plugin=ux.chats.livechat.plugin.LivechatWidgetPlugin,
                     registry=ux.chats.livechat.plugin.register()
                 ),
+                "fcd228dd-04bf-49a4-b5ea-47338adf8b98": PluginConfig(
+                    name="Intercom widget",
+                    validator=ux.chats.intercom.plugin.validate,
+                    plugin=ux.chats.intercom.plugin.IntercomWidgetPlugin,
+                    registry=ux.chats.intercom.plugin.register()
+                ),
                 "87300a00-5801-454a-8a81-91aa22448d64": PluginConfig(
                     name="Javascript tag",
                     validator=ux.custom_js.plugin.validate,
                     plugin=ux.custom_js.plugin.GenericJsScriptPlugin,
                     registry=ux.custom_js.plugin.register()
-                )
+                ),
             }
         ),
 
