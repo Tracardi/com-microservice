@@ -31,7 +31,21 @@ class ServiceConfig(BaseModel):
 
 
 class ServicesRepo(BaseModel):
-    repo: Dict[str, ServiceConfig]
+    repo: Dict[str, ServiceConfig] = {}
+
+    def plugin(self, id=None):
+        print(id)
+
+        def decorator(func):
+            print(func.__module__)
+            print(func.__name__)
+
+            def wrapper(*args, **kwargs):
+                func(*args, **kwargs)
+
+            return wrapper
+
+        return decorator
 
     def get_all_services(self) -> Tuple[str, str]:
         for id, service in self.repo.items():
