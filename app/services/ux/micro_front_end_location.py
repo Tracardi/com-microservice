@@ -7,5 +7,5 @@ class MicroFrontEndLocation(BaseModel):
     @staticmethod
     def create():
         return MicroFrontEndLocation(
-            uix_mf_source=AnyHttpUrl("http://localhost:20000", scheme='http')
+            uix_mf_source=AnyHttpUrl("http://localhost:20000")
         )
