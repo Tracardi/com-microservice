@@ -1,12 +1,9 @@
-import logging
-
 import os
 from decouple import config, UndefinedValueError
 
+from tracardi.exceptions.log_handler import get_logger
 
-logging.basicConfig(level=logging.ERROR)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 
 class MicroserviceConfig:

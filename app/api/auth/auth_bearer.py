@@ -1,5 +1,3 @@
-import logging
-
 import hashlib
 import jwt
 from typing import Dict, Optional
@@ -9,9 +7,9 @@ from decouple import config, UndefinedValueError
 from app.config import microservice
 from pydantic import BaseModel
 
-logging.basicConfig(level=logging.ERROR)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+from tracardi.exceptions.log_handler import get_logger
+
+logger = get_logger(__name__)
 
 try:
     JWT_SECRET = config("SECRET")

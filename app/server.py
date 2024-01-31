@@ -1,4 +1,3 @@
-import logging
 import os
 from time import time
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,10 +7,9 @@ from starlette.staticfiles import StaticFiles
 from app import config
 from app.api import service_endpoint, auth_endpoint
 from tracardi.config import tracardi
+from tracardi.exceptions.log_handler import get_logger
 
-logging.basicConfig(level=logging.ERROR)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 _local_dir = os.path.dirname(__file__)
 
