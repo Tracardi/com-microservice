@@ -1,3 +1,4 @@
+import json
 from json import JSONDecodeError
 from typing import Union
 
@@ -139,8 +140,9 @@ async def get_plugin_registry(service_id: str):
 
 
 @router.post("/plugin/validate", dependencies=[Depends(JWTBearer())], tags=["microservice"], response_model=dict)
-async def validate_plugin_configuration(service_id: str, action_id: str, config: dict, credentials: dict = None):
+async def validate_plugin_configuration(service_id: str, action_id: str, config: str, credentials: dict = None):
     try:
+        config = json.loads(config)
         validator = repo.get_plugin_validator(service_id, action_id)
         return await validator(config, credentials)
     except ValidationError as e:
