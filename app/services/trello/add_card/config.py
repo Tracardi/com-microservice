@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, field_validator
 from typing import Optional, Union
 from datetime import datetime
 from tracardi.service.plugin.domain.config import PluginConfig
@@ -11,7 +11,8 @@ class Card(BaseModel):
     coordinates: Optional[str] = None
     due: Optional[Union[str, datetime]] = None
 
-    @validator("name")
+    @field_validator("name")
+    @classmethod
     def name_not_empty(cls, value):
         if len(value) == 0:
             raise ValueError("Card name cannot be empty")
@@ -24,13 +25,15 @@ class Config(PluginConfig):
     list_id: str = None
     card: Card
 
-    @validator("board_url")
+    @field_validator("board_url")
+    @classmethod
     def board_url_not_empty(cls, value):
         if len(value) == 0:
             raise ValueError("Board URL cannot be empty")
         return value
 
-    @validator("list_name")
+    @field_validator("list_name")
+    @classmethod
     def list_name_not_empty(cls, value):
         if len(value) == 0:
             raise ValueError("List name cannot be empty")
