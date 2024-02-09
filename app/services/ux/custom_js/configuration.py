@@ -11,6 +11,7 @@ class Config(PluginConfig):
     attributes: Optional[str] = "{}"
 
     @field_validator("attributes")
+    @classmethod
     def validate_file_path(cls, value):
         try:
             json.loads(value)

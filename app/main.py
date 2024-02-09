@@ -73,6 +73,7 @@ async def add_process_time_header(request: Request, call_next):
         return response
 
     except Exception as e:
+        logger.error(str(e), e)
         return JSONResponse(status_code=500,
                             headers={
                                 "access-control-allow-credentials": "true",

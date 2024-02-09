@@ -1,6 +1,6 @@
 import json
 from json import JSONDecodeError
-from typing import Union
+from typing import Union, Optional
 
 from fastapi import APIRouter, Depends, Request, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -139,10 +139,9 @@ async def get_plugin_registry(service_id: str):
     return repo.get_plugin_registry(service_id)
 
 
-@router.post("/plugin/validate", dependencies=[Depends(JWTBearer())], tags=["microservice"], response_model=dict)
-async def validate_plugin_configuration(service_id: str, action_id: str, config: str, credentials: dict = None):
+@router.post("/plugin/validate", dependencies=[Depends(JWTBearer())], tags=["microservice"])
+async def validate_plugin_configuration(service_id: str, action_id: str, config: Optional[dict]=None, credentials: dict = None):
     try:
-        config = json.loads(config)
         validator = repo.get_plugin_validator(service_id, action_id)
         return await validator(config, credentials)
     except ValidationError as e:
@@ -152,18 +151,18 @@ async def validate_plugin_configuration(service_id: str, action_id: str, config:
         )
 
 
-@router.post("/plugin/run", dependencies=[Depends(JWTBearer())], tags=["microservice"], response_model=dict)
+@router.post("/plugin/run", dependencies=[Depends(JWTBearer())], tags=["microservice"])
 async def run_plugin(service_id: str, action_id: str, data: PluginExecContext):
 
-    """
-    Runs the plugin.
-    :param service_id:
-    :param action_id:
-    :param data:
-    :return:
-    """
-
-    try:
+    # """
+    # Runs the plugin.
+    # :param service_id:
+    # :param action_id:
+    # :param data:
+    # :return:
+    # """
+    #
+    # try:
         plugin_type = repo.get_plugin(service_id, action_id)
         if plugin_type:
             plugin = plugin_type()
@@ -182,8 +181,8 @@ async def run_plugin(service_id: str, action_id: str, data: PluginExecContext):
                 "console": plugin.console.dict()
             }
         return {}
-    except ValidationError as e:
-        return JSONResponse(
-            status_code=422,
-            content=jsonable_encoder(convert_errors(e))
-        )
+    # except ValidationError as e:
+    #     return JSONResponse(
+    #         status_code=422,
+    #         content=jsonable_encoder(convert_errors(e))
+    #     )
